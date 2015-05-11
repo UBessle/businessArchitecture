@@ -1,0 +1,169 @@
+<!doctype html>
+
+<meta charset="utf-8">
+<title>Fidibus Business Architecture</title>
+
+<link rel="stylesheet" href="css/architecture.css">
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="../dist/js/dagre-d3.js"></script>
+<!--
+<script src="bower_components/lodash/dist/lodash.js"></script>
+<script src="bower_components/graphlib/dist/graphlib.core.js"></script>
+<script src="bower_components/dagre/dist/dagre.core.js"></script>
+<script src="bower_components/dagre-d3/dist/dagre-d3.core.js"></script>
+-->
+
+<!-- Pull in JQuery dependencies -->
+<link rel="stylesheet" href="css/tipsy.css">
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="js/tipsy.js"></script>
+
+<h1>Fidibus Business Architecture (based on Dagre D3)</h1>
+
+<style id="css">
+    text {
+        font-weight: 300;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+        font-size: 14px;
+    }
+
+    .node rect {
+        stroke: #333;
+        fill: #fff;
+    }
+
+    .edgePath path {
+        stroke: #333;
+        fill: #333;
+        stroke-width: 1px;
+    }
+
+    .node text {
+        pointer-events: none;
+    }
+
+    /* This styles the title of the tooltip */
+    .tipsy .name {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #60b1fc;
+        margin: 0;
+    }
+
+    /* This styles the body of the tooltip */
+    .tipsy .description {
+        font-size: 1.2em;
+    }
+</style>
+
+<svg width=1240 height=800></svg>
+
+<section>
+    <p>The Business Architecture diagramm was created using <a href="https://github.com/cpettitt/dagre-d3">Dagre-D3</a>
+        with hover support using <a href="http://bl.ocks.org/ilyabo/1373263">tipsy JS and CSS</a>
+        for the tooltip.
+</section>
+
+<script id="js">
+    // Create a new directed graph
+    var g = new dagreD3.graphlib.Graph().setGraph({});
+
+    var businessComponents = [
+        {  shortname: '?',  name: '?',  color: 'lightgray',  order: -1 },
+        {  shortname: 'DEPR',  name: 'DEPRECATED',  color: 'lightgray',  order: -2 },
+        {  shortname: 'ABST',  name: 'Ablaufsteuerung',  color: '#33BBFF',  row: 1,  col: 1,  colspan: 2,  teamguess: 'I',  order: 5.5 },
+        {  shortname: 'ABRE',  name: 'Abrechnung',  color: '#CC5200',  row: 5,  col: 0,  colspan: 2,  teamguess: 'B',  order: 1 },
+        {  shortname: 'ABSI',  name: 'Absicherung',  color: '#00AAFF',  row: 4,  col: 2,  teamguess: 'I',  order: 6 },
+        {  shortname: 'ADER',  name: 'Adressermittlung',  color: '#FFFF00',  row: 9,  col: 2,  teamguess: 'P',  order: 14 },
+        {  shortname: 'ADBE',  name: 'Außendienst-Beauftragung',  color: '#FFFF66',  row: 3,  col: 0,  teamguess: 'P',  order: 15 },
+        {  shortname: 'AUSW',  name: 'Bereitstellen von Auswertung',  color: '#CCEEFF',  row: 0,  col: 2,  teamguess: 'I',  order: 8.5 },
+        {  shortname: 'BUHA',  name: 'Buchhaltung',  color: '#FF6600',  row: 6,  col: 0,  teamguess: 'B',  order: 2 },
+        {  shortname: 'FOMA',  name: 'Forderungs-Management',  color: '#66CCFF',  row: 6,  col: 1,  teamguess: 'I',  order: 7 },
+        {  shortname: 'FORD',  name: 'Forderung',  color: '#66CCFF',  row: 6,  col: 1,  teamguess: 'I',  order: 7 },
+        {  shortname: 'IMMO',  name: 'Immo',  color: '#99DDFF',  row: 6,  col: 2,  teamguess: 'I',  order: 8 },
+        {  shortname: 'INSO',  name: 'Insolvenz',  color: '#0088CC',  row: 5,  col: 2,  teamguess: 'I',  order: 5 },
+        {  shortname: 'KOIN',  name: 'Kommunikation Inbound',  color: '#FFFFE5',  row: 2,  col: 0,  teamguess: 'P',  order: 17 },
+        {  shortname: 'KOWI',  name: 'Kommunikation mit Wirtschaftsauskunfteien',  color: '#CCEEFF',  row: 3,  col: 1,  colspan: 2,  teamguess: 'I',  order: 9 },
+        {  shortname: 'KOOU',  name: 'Kommunikation Outbound',  color: '#FFFFCC',  row: 2,  col: 1,  teamguess: 'P',  order: 16 },
+        {  shortname: 'KE',    name: 'Kontoeröffnung',  color: '#FFA500',  row: 1,  col: 0,  teamguess: 'S',  order: 18 },
+        {  shortname: 'MAAU',  name: 'Mandanten-/Auftragsmanagement',  color: '#4D4D00',  row: 7,  col: 1,  colspan: 2,  teamguess: 'P',  order: 10 },
+        {  shortname: 'MAZU',  name: 'Mandantenzugriff (Web@ccount)',  color: '#FFC966',  row: 0,  col: 1,  teamguess: 'S',  order: 20 },
+        {  shortname: 'ORGA',  name: 'Organisations- und Mitarbeiterverwaltung',  color: '#999900',  row: 7,  col: 0,  teamguess: 'P',  order: 12 },
+        {  shortname: 'PERS',  name: 'Personenverwaltung(inkl. Anreicherung)',  color: '#CCCC00',  row: 8,  col: 1,  colspan: 2,  teamguess: 'P',  order: 13 },
+        {  shortname: 'RUEC',  name: 'Rückmeldung an Mandanten',  color: '#FFB833',  row: 2,  col: 2,  teamguess: 'S',  order: 19 },
+        {  shortname: 'SCHU',  name: 'Schuldnerzugriff (Schuldnerportal)',  color: '#E6E600',  row: 0,  col: 0,  teamguess: 'P',  order: 13.5 },
+        {  shortname: 'SCOR',  name: 'Scoring',  color: '#666600',  row: 9,  col: 0,  colspan: 2,  teamguess: 'P',  order: 11 },
+        {  shortname: 'TARF',  name: 'Tarifierung',  color: '#993D00',  row: 4,  col: 1,  teamguess: 'B',  order: 0 },
+        {  shortname: 'TI',    name: 'Technische Infrastruktur',  color: '#F08080',  row: 10,  col: 0,  colspan: 3,  teamguess: 'Q',  order: 21 },
+        {  shortname: 'ZAVB',  name: 'Zahlungsvereinbarung',  color: '#FFE0CC',  row: 8,  col: 0,  teamguess: 'B',  order: 4 },
+        {  shortname: 'ZAVK',  name: 'Zahlungsverkehr',  color: '#FFA366',  row: 4,  col: 0,  teamguess: 'B',  order: 3 }
+    ].sort(function(a, b) {  return a.order - b.order; });
+
+    // Add components to the graph, set labels, and style
+    businessComponents.forEach(function(component) {
+        var value = component;
+        value.label = component.shortname;
+        value.rx = value.ry = 5;
+        value.style = "fill: " + component.color;
+        g.setNode(component.shortname, value);
+    });
+
+    // Set up the edges
+    g.setEdge("MAZU", "ORGA", { label: "use" });
+    g.setEdge("MAZU", "KE",   { label: "use" });
+    g.setEdge("MAZU", "FOMA", { label: "use" });
+    g.setEdge("ORGA", "ABST", { label: "provides" });
+    g.setEdge("KE",   "MAAU", { label: "use" });
+    g.setEdge("KE",   "RUEC", { label: "use" });
+    g.setEdge("KE",   "FOMA", { label: "use" });
+    g.setEdge("KE",   "IMMO", { label: "use" });
+    g.setEdge("KE",   "PERS", { label: "use" });
+    g.setEdge("IMMO", "FOMA", { label: "extends" });
+    g.setEdge("ABST", "MAAU", { label: "use" });
+    g.setEdge("FOMA", "ABSI", { label: "use" });
+    g.setEdge("FOMA", "ABST", { label: "provides" });
+    g.setEdge("FOMA", "BUHA", { label: "use" });
+    g.setEdge("FOMA", "FORD", { label: "use" });
+    g.setEdge("FOMA", "INSO", { label: "use" });
+    g.setEdge("FOMA", "MAAU", { label: "use" });
+    g.setEdge("FOMA", "ORGA", { label: "use" });
+    g.setEdge("FOMA", "ZAVB", { label: "use" });
+    g.setEdge("FOMA", "ZAVK", { label: "use" });
+
+
+    // Create the renderer
+    var render = new dagreD3.render();
+
+    // Set up an SVG group so that we can translate the final graph.
+    var svg = d3.select("svg"),
+            inner = svg.append("g");
+
+    // Set up zoom support
+    var zoom = d3.behavior.zoom().on("zoom", function() {
+        inner.attr("transform", "translate(" + d3.event.translate + ")" +
+        "scale(" + d3.event.scale + ")");
+    });
+    svg.call(zoom);
+
+    // Simple function to style the tooltip for the given node.
+    var styleTooltip = function(name, description) {
+        return "<p class='name'>" + name + "</p><p class='description'>" + description + "</p>";
+    };
+
+    // Run the renderer. This is what draws the final graph.
+    render(inner, g);
+
+    inner.selectAll("g.node")
+            .attr("title", function(v) { return styleTooltip(v, g.node(v).name) })
+            .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
+
+    // Center the graph
+    var initialScale = 0.75;
+    zoom
+            .translate([(svg.attr("width") - g.graph().width * initialScale) / 2, 20])
+            .scale(initialScale)
+            .event(svg);
+    svg.attr('height', g.graph().height * initialScale + 40);
+</script>
+
+<script src="js/architecture.js"></script>
