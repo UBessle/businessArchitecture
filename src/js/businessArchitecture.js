@@ -1,6 +1,23 @@
 // Create a new directed graph
-var g = new dagreD3.graphlib.Graph().setGraph({});
+var g = new dagreD3.graphlib.Graph({compound:true}).setGraph({});
 
+var teams = [
+    { shortname: 'I', name: 'Inkasso', color:'#66CCFF' },
+    { shortname: 'P', name: 'Personen', color:'#CCCC00' },
+    { shortname: 'B', name: 'Buchen', color:'#FF6600' },
+    { shortname: 'S', name: 'Schnittstellen', color:'orange' },
+    { shortname: 'Q', name: 'Querschnitt', color:'lightcoral' },
+    { shortname: '?', name: 'nicht zugeordnet', color:'lightsteelblue' }
+]
+/*
+teams.forEach(function(teamNode) {
+    var cluster = teamNode;
+    cluster.label = teamNode.shortname;
+    cluster.rx = cluster.ry = 3;
+    cluster.style = "fill: #ffffff" /*+ team.color* /;
+    g.setNode(teamNode.shortname, cluster);
+})
+*/
 var businessComponents = [
     {  shortname: '?',  name: '?',  color: 'lightgray',  order: -1 },
     {  shortname: 'DEPR',  name: 'DEPRECATED',  color: 'lightgray',  order: -2 },
@@ -34,11 +51,12 @@ var businessComponents = [
 
 // Add components to the graph, set labels, and style
 businessComponents.forEach(function(component) {
-    var value = component;
-    value.label = component.shortname;
-    value.rx = value.ry = 5;
-    value.style = "fill: " + component.color;
-    g.setNode(component.shortname, value);
+    var node = component;
+    node.label = component.shortname;
+    node.rx = node.ry = 5;
+    node.style = "fill: " + component.color;
+    g.setNode(component.shortname, node);
+    //g.setParent(component.shortname, component.teamguess);
 });
 
 // Set up the edges
@@ -144,6 +162,10 @@ render(inner, g);
 
 inner.selectAll("g.node")
     .attr("title", function(v) { return styleTooltip(v, g.node(v).name) })
+    .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
+
+inner.selectAll("g.cluster")
+    .attr("title", function(v) { return styleTooltip(v, g.cluster(v).name) })
     .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
 
 // Center the graph
