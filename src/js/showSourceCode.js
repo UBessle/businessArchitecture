@@ -9,16 +9,29 @@ function setupPanel(panel, elem, title) {
     return panel.append('pre').append('code').text(elem.html().trim());
 }
 
-var jsCode = setupPanel(jsPanel, jsElem, 'JavaScript');
+function setupPanelFromSource(panel, elem, title) {
+    var src = elem.attr('src')
+    panel.append('h2').text(title + " (" + src + ")");
+    var sourceNode = panel.append('pre').append('code');
+    d3.text(src, function(error, response){
+        sourceNode.text(response);
+    })
+    return sourceNode;
+}
+
+var jsCode = setupPanelFromSource(jsPanel, jsElem, 'JavaScript');
 var cssCode = setupPanel(cssPanel, cssElem, 'CSS');
 
-var hljsRoot = 'http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1';
+var hljsRoot = '../dist';
 
 bodyElem.append('link')
     .attr('rel', 'stylesheet')
-    .attr('href', hljsRoot + '/styles/xcode.min.css');
+    .attr('href', hljsRoot + '/css/idea.css');
+bodyElem.append('style')
+    .attr('id', 'codeStyleCSS')
+    .text('.hjls {background: #eeeeee;}');
 bodyElem.append('script')
-    .attr('src', hljsRoot + '/highlight.min.js')
+    .attr('src', hljsRoot + '/js/highlight.min.js')
     .on('load', function() {
         hljs.highlightBlock(jsCode.node());
         hljs.highlightBlock(cssCode.node());

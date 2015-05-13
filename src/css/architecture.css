@@ -1,5 +1,5 @@
 body {
-    width: 960px;
+    width: 98%;
     margin: 0 auto;
     color: #333;
     font-weight: 300;
@@ -33,3 +33,10 @@ svg {
 pre {
     border: 1px solid #ccc;
 }
+
+#jsPanel, #cssPanel {
+    width: 1200px;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
