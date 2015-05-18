@@ -9,15 +9,7 @@ var teams = [
     { shortname: 'Q', name: 'Querschnitt', color:'lightcoral' },
     { shortname: '?', name: 'nicht zugeordnet', color:'lightsteelblue' }
 ]
-/*
-teams.forEach(function(teamNode) {
-    var cluster = teamNode;
-    cluster.label = teamNode.shortname;
-    cluster.rx = cluster.ry = 3;
-    cluster.style = "fill: #ffffff" /*+ team.color* /;
-    g.setNode(teamNode.shortname, cluster);
-})
-*/
+
 var businessComponents = [
     {  shortname: '?',  name: '?',  color: 'lightgray',  order: -1 },
     {  shortname: 'DEPR',  name: 'DEPRECATED',  color: 'lightgray',  order: -2 },
@@ -49,6 +41,15 @@ var businessComponents = [
     {  shortname: 'ZAVK',  name: 'Zahlungsverkehr',  color: '#FFA366',  row: 4,  col: 0,  teamguess: 'B',  order: 3 }
 ].sort(function(a, b) {  return a.order - b.order; });
 
+// Add team cluster to the graph, set labels and style infos
+teams.forEach(function(teamNode) {
+    var cluster = teamNode;
+    cluster.label = teamNode.shortname;
+    cluster.rx = cluster.ry = 3;
+    cluster.style = "opacity: 0.2 ; fill: " + teamNode.color;
+    g.setNode(teamNode.shortname, cluster);
+})
+
 // Add components to the graph, set labels, and style
 businessComponents.forEach(function(component) {
     var node = component;
@@ -56,7 +57,7 @@ businessComponents.forEach(function(component) {
     node.rx = node.ry = 5;
     node.style = "fill: " + component.color;
     g.setNode(component.shortname, node);
-    //g.setParent(component.shortname, component.teamguess);
+    g.setParent(component.shortname, component.teamguess);
 });
 
 // Set up the edges
@@ -165,7 +166,7 @@ inner.selectAll("g.node")
     .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
 
 inner.selectAll("g.cluster")
-    .attr("title", function(v) { return styleTooltip(v, g.cluster(v).name) })
+    .attr("title", function(v) { return styleTooltip(v, g.node(v).name) })
     .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
 
 // Center the graph
